@@ -1,8 +1,16 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
+FROM debian:buster-slim as masscan
+WORKDIR /src
+RUN apt-get update
+RUN apt-get install -y git gcc make libpcap-dev
+RUN git clone https://github.com/robertdavidgraham/masscan .
+RUN make -j
+
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
+COPY --from=masscan /src/bin/masscan /usr/local/bin/masscan
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
