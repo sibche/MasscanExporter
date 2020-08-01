@@ -18,6 +18,20 @@ namespace MasscanExporter
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddJsonFile("appsettings.defaults.json", false)
+                            .AddJsonFile("appsettings.json", true)
+                            .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true)
+                            .AddEnvironmentVariables(prefix: "MASSSCAN_EXPORTER_")
+                            .AddCommandLine(args);
+                })
+                .ConfigureLogging((hostContext, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConfiguration(hostContext.Configuration);
+                    loggingBuilder.AddConsole(options => { options.IncludeScopes = true; });
+                    loggingBuilder.AddSentry();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
