@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  masscan-exporter:
+    image: sibche/masscan_exporter
+    restart: always
+    ports: 
+      - "1374:80"
+    volumes:
+      - ./appsettings.json:/app/appsettings.json:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
