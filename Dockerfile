@@ -10,6 +10,8 @@ RUN make -j
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
+RUN apt-get update
+RUN apt-get install -y libpcap-dev
 COPY --from=masscan /src/bin/masscan /usr/local/bin/masscan
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
