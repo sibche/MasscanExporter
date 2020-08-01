@@ -1,0 +1,12 @@
+﻿@using MasscanExporter.Models
+@model MasscanConf
+rate =  1000
+output-format = json
+output-status = open
+output-filename = @Model.OutputPath
+ports = @Model.PortsString
+ports = U:@Model.PortsString
+@foreach (var ip in Model.IPs)
+{
+    <text>range = @ip</text>
+}

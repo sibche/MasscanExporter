@@ -25,6 +25,7 @@
     },
     "Docker": {
       "commandName": "Docker",
+      "commandLineArgs": "--target base",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true
