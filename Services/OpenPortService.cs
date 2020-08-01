@@ -1,4 +1,5 @@
 ﻿using MasscanExporter.Models;
+using Microsoft.Extensions.Logging;
 using Prometheus;
 using RazorLight;
 using System;
@@ -45,12 +46,15 @@ namespace MasscanExporter.Services
                 Ports = ports,
             };
 
-            await File.WriteAllTextAsync(masscanConf.ConfigPath,
-                await razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf));
+            var configs = await razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf);
+            await File.WriteAllTextAsync(masscanConf.ConfigPath, configs);
 
             using var process = new Process
             {
-                StartInfo = { FileName = "/usr/local/bin/masscan", Arguments = $"-c {masscanConf.ConfigPath}" },
+                StartInfo = {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"masscan -c '{masscanConf.ConfigPath}'\"",
+                },
                 EnableRaisingEvents = true
             };
 
@@ -58,15 +62,19 @@ namespace MasscanExporter.Services
 
             process.Exited += (sender, args) =>
             {
-                tcs.SetResult(process.ExitCode == 0);
+                var result = process.ExitCode == 0;
+                tcs.TrySetResult(result);
             };
 
-            process.Start();
-            await tcs.Task;
-
-            var result = JsonSerializer.Deserialize<List<MasscanOutput>>(await File.ReadAllTextAsync(masscanConf.OutputPath));
-
-            return result.SelectMany(x => x.Ports.Select(y => new OpenPort(x.IP, y.Port, y.Protocol))).ToList();
+            if (process.Start())
+            {
+                if (await tcs.Task)
+                {
+                    var result = JsonSerializer.Deserialize<List<MasscanOutput>>(await File.ReadAllTextAsync(masscanConf.OutputPath));
+                    return result.SelectMany(x => x.Ports.Select(y => new OpenPort(x.IP, y.Port, y.Protocol))).ToList();
+                }
+            }
+            return new List<OpenPort>();
         }
 
         public static void RemoveOpenPortFromStats(OpenPort openPort)
