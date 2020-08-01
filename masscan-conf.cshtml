@@ -9,4 +9,5 @@ ports = U:@Model.PortsString
 @foreach (var ip in Model.IPs)
 {
     <text>range = @ip</text>
+    <text>@Raw("\n")</text>
 }
