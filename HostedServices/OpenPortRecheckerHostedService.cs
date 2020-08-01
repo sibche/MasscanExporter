@@ -41,15 +41,18 @@ namespace MasscanExporter.HostedServices
                 }
 
                 var ips = openPorts.Select(x => x.IP).ToList();
-                var ports = openPorts.Select(x => x.Port).ToList();
-
-                var checkResults = await _openPortService.CheckOpenPorts(ips, ports);
-
-                var resolvedPorts = openPorts.Except(checkResults).ToList();
-
-                foreach (var openPort in resolvedPorts)
+                if (ips.Any())
                 {
-                    OpenPortService.RemoveOpenPortFromStats(openPort);
+                    var ports = openPorts.Select(x => x.Port).ToList();
+
+                    var checkResults = await _openPortService.CheckOpenPorts(ips, ports);
+
+                    var resolvedPorts = openPorts.Except(checkResults).ToList();
+
+                    foreach (var openPort in resolvedPorts)
+                    {
+                        OpenPortService.RemoveOpenPortFromStats(openPort);
+                    }
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
