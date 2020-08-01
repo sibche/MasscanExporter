@@ -5,7 +5,7 @@ services:
     image: sibche/masscan_exporter
     restart: always
     ports: 
-      - "1374:80"
+      - "80:80"
     volumes:
       - ./appsettings.json:/app/appsettings.json:ro
     logging:
