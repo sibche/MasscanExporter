@@ -20,8 +20,7 @@ namespace MasscanExporter
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.AddJsonFile("appsettings.defaults.json", false)
-                            .AddJsonFile("appsettings.json", true)
+                    config.AddJsonFile("appsettings.json", true)
                             .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true)
                             .AddEnvironmentVariables(prefix: "MASSSCAN_EXPORTER_")
                             .AddCommandLine(args);
