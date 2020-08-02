@@ -42,7 +42,7 @@ namespace MasscanExporter.Services
         {
             var masscanConf = new MasscanConf
             {
-                IPs = ips,
+                IPs = ips.Distinct().ToList(),
                 Ports = ports,
             };
 
