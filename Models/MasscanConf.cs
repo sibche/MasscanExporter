@@ -11,8 +11,8 @@ namespace MasscanExporter.Models
         public List<string> IPs { get; set; } = new List<string>();
         public List<int> Ports { get; set; }
 
-        public string ConfigPath => $"/opt/{Id}.conf";
-        public string OutputPath => $"/opt/{Id}.out.json";
+        public string ConfigPath => $"/opt/masscan-exporter/configs/{Id}.conf";
+        public string OutputPath => $"/opt/masscan-exporter/outputs/{Id}.out.json";
         public string PortsString => Ports != null ? string.Join(",", Ports) : "0-65535";
     }
 }

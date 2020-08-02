@@ -46,6 +46,9 @@ namespace MasscanExporter.Services
                 Ports = ports.Distinct().ToList(),
             };
 
+            new DirectoryInfo(Path.GetDirectoryName(masscanConf.ConfigPath)).Create();
+            new DirectoryInfo(Path.GetDirectoryName(masscanConf.OutputPath)).Create();
+
             var configs = await razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf);
             await File.WriteAllTextAsync(masscanConf.ConfigPath, configs);
 
