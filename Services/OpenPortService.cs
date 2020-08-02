@@ -43,7 +43,7 @@ namespace MasscanExporter.Services
             var masscanConf = new MasscanConf
             {
                 IPs = ips.Distinct().ToList(),
-                Ports = ports,
+                Ports = ports.Distinct().ToList(),
             };
 
             var configs = await razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf);
