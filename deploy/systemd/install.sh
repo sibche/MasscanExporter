@@ -3,6 +3,7 @@ set -e
 
 git clone https://github.com/sibche/MasscanExporter /tmp/MasscanExporter
 pushd /tmp/MasscanExporter
+systemctl stop masscan-exporter.service || true
 dotnet publish --configuration Release MasscanExporter.csproj -o /opt/masscan-exporter
 cp -f deploy/systemd/masscan-exporter.service /etc/systemd/system/
 systemctl daemon-reload
