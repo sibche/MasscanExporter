@@ -43,7 +43,7 @@ namespace MasscanExporter.Services
             var masscanConf = new MasscanConf
             {
                 IPs = ips.Distinct().ToList(),
-                Ports = ports.Distinct().ToList(),
+                Ports = ports?.Distinct().ToList(),
             };
 
             new DirectoryInfo(Path.GetDirectoryName(masscanConf.ConfigPath)).Create();
