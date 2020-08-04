@@ -24,6 +24,24 @@ you can run `install.sh` again in order to update the project to the latest vers
 
 take a look at `deploy/docker/docker-compose.yaml`.
 
+# Example Alert Rule
+
+you can use this alert as an example:
+
+```yaml
+groups:
+  - name: Masscan Exporter
+    rules:
+      - alert: IllegalOpenPort
+        expr: sum(netstat_open_ports) by (ip) > 0
+        for: 1m
+        labels:
+          severity: error
+        annotations:
+          summary: "Illegal open ports detected"
+          description: "there are {{ $value }} open ports on {{ $labels.ip }}"
+```
+
 # Development
 
 ## Docker Debug
