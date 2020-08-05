@@ -1,5 +1,6 @@
 ﻿using MasscanExporter.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Prometheus;
 using RazorLight;
 using System;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MasscanExporter.Services
@@ -31,11 +33,13 @@ namespace MasscanExporter.Services
                 LabelNames = new[] { "ip" }
             });
 
-        private readonly RazorLightEngine razorLightEngine;
+        private readonly RazorLightEngine _razorLightEngine;
+        private readonly IOptionsMonitor<IpOptions> _ipOptions;
 
-        public OpenPortService(RazorLightEngine razorLightEngine)
+        public OpenPortService(RazorLightEngine razorLightEngine, IOptionsMonitor<IpOptions> ipOptions)
         {
-            this.razorLightEngine = razorLightEngine;
+            _razorLightEngine = razorLightEngine;
+            _ipOptions = ipOptions;
         }
 
         public async Task<List<OpenPort>> CheckOpenPorts(List<string> ips, List<int> ports = null)
@@ -49,7 +53,7 @@ namespace MasscanExporter.Services
             new DirectoryInfo(Path.GetDirectoryName(masscanConf.ConfigPath)).Create();
             new DirectoryInfo(Path.GetDirectoryName(masscanConf.OutputPath)).Create();
 
-            var configs = await razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf);
+            var configs = await _razorLightEngine.CompileRenderAsync("masscan-conf.cshtml", masscanConf);
             await File.WriteAllTextAsync(masscanConf.ConfigPath, configs);
 
             using var process = new Process
@@ -78,6 +82,25 @@ namespace MasscanExporter.Services
                 }
             }
             return new List<OpenPort>();
+        }
+
+        public bool IsPortLegal(OpenPort openPort)
+        {
+            if (_ipOptions.CurrentValue.GlobalWhitelistedPorts.Contains(openPort.Port))
+                return true;
+
+            if (_ipOptions.CurrentValue.WhitelistedPorts.ContainsKey(openPort.IP) &&
+                    _ipOptions.CurrentValue.WhitelistedPorts[openPort.IP].Contains(openPort.Port))
+                return true;
+
+            foreach (var group in _ipOptions.CurrentValue.GroupsOfIP[openPort.IP])
+            {
+                if (_ipOptions.CurrentValue.WhitelistedPorts.ContainsKey(group) &&
+                    _ipOptions.CurrentValue.WhitelistedPorts[group].Contains(openPort.Port))
+                    return true;
+            }
+
+            return false;
         }
 
         public static void RemoveOpenPortFromStats(OpenPort openPort)

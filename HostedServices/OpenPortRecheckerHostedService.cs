@@ -38,8 +38,7 @@ namespace MasscanExporter.HostedServices
 
                     foreach (var openPort in openPorts)
                     {
-                        if (_ipOptions.CurrentValue.GlobalWhitelistedPorts.Contains(openPort.Port) || (_ipOptions.CurrentValue.WhitelistedPorts.ContainsKey(openPort.IP) &&
-                                _ipOptions.CurrentValue.WhitelistedPorts[openPort.IP].Contains(openPort.Port)))
+                        if (_openPortService.IsPortLegal(openPort))
                         {
                             OpenPortService.RemoveOpenPortFromStats(openPort);
                             openPorts.Remove(openPort);
