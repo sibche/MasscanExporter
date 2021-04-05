@@ -38,8 +38,12 @@ groups:
         labels:
           severity: error
         annotations:
-          summary: "Illegal open ports detected"
-          description: "there are {{ $value }} open ports on {{ $labels.ip }}"
+          summary: Illegal open ports detected
+          description: |
+            these ports are open on {{ $labels.ip }}:
+            {{- range printf "netstat_open_ports{ip='%s'}" $labels.ip | query }}
+              - {{ .Labels.port }}/{{ .Labels.protocol }}
+            {{- end -}}
 ```
 
 # Development
