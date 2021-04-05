@@ -93,11 +93,14 @@ namespace MasscanExporter.Services
                     _ipOptions.CurrentValue.WhitelistedPorts[openPort.IP].Contains(openPort.Port))
                 return true;
 
-            foreach (var group in _ipOptions.CurrentValue.GroupsOfIP[openPort.IP])
+            if (_ipOptions.CurrentValue.GroupsOfIP.ContainsKey(openPort.IP))
             {
-                if (_ipOptions.CurrentValue.WhitelistedPorts.ContainsKey(group) &&
-                    _ipOptions.CurrentValue.WhitelistedPorts[group].Contains(openPort.Port))
-                    return true;
+                foreach (var group in _ipOptions.CurrentValue.GroupsOfIP[openPort.IP])
+                {
+                    if (_ipOptions.CurrentValue.WhitelistedPorts.ContainsKey(group) &&
+                        _ipOptions.CurrentValue.WhitelistedPorts[group].Contains(openPort.Port))
+                        return true;
+                }
             }
 
             return false;
